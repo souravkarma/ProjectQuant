@@ -1,155 +1,73 @@
-# ProjectQuant
-classDiagram
+📈 ProjectQuant — Multi-Strategy Equity Backtesting Engine
 
-    class MarketDataFeed{
-        +stream() Bar
-    }
+ProjectQuant is a modular, event-driven backtesting framework designed to simulate real-time equity trading using historical OHLC market data.
+It supports multiple independent trading strategies running concurrently on the same market data stream while enforcing risk controls, execution logic, and portfolio-level analytics.
 
-    class Strategy{
-        <<abstract>>
-        +on_bar(Bar) Signal[]
-    }
+The system architecture closely mirrors real-world quantitative trading platforms by separating:
 
-    class MovingAverageStrategy{
-        +on_bar(Bar) Signal[]
-    }
+✔ Market Data Feed — streams historical data bar-by-bar
+✔ Strategy Engine — generates trading signals
+✔ Risk Manager — validates and filters orders
+✔ Execution Engine — simulates fills and maintains positions
+✔ Analytics Engine — produces performance metrics and reports
 
-    class SupertrendStrategy{
-        +on_bar(Bar) Signal[]
-    }
+This design ensures clarity, extensibility, and testability, while complying fully with the project specification requirements.
 
-    class RSI2Strategy{
-        +on_bar(Bar) Signal[]
-    }
+🎯 Key Capabilities
 
-    class Signal{
-        +side: str
-        +timestamp: datetime
-        +symbol: str
-        +qty: int
-        +reason: str
-        +strategy_name: str
-    }
+🔄 Historical Replay Mode — data is processed bar-by-bar as if live
 
-    class RiskManager{
-        +allow(Signal, pnl) Signal | None
-    }
+🤝 Multiple strategies evaluated concurrently
 
-    class ExecutionEngine{
-        -positions
-        -trades
-        +execute(Bar, Signal[])
-        +trades: list
-    }
+🧠 Strategy-agnostic architecture — each strategy is isolated and pluggable
 
-    class MetricsEngine{
-        +compute_metrics(trades)
-    }
+💹 Market-order execution simulation with slippage
 
-    class main_py{
-        -feed: MarketDataFeed
-        -strategies: list
-        -engine: ExecutionEngine
-        -risk: RiskManager
-        +run()
-    }
+⚠️ Risk constraints enforced pre-trade
 
-    MarketDataFeed --> Strategy : streams Bar
-    Strategy --> Signal : emits
-    Signal --> RiskManager : checked by
-    RiskManager --> ExecutionEngine : passes signals
-    ExecutionEngine --> MetricsEngine : outputs trades
-    Strategy <|-- MovingAverageStrategy
-    Strategy <|-- SupertrendStrategy
-    Strategy <|-- RSI2Strategy
-    main_py --> MarketDataFeed
-    main_py --> Strategy
-    main_py --> ExecutionEngine
-    sequenceDiagram
-    autonumber
-    participant Main as main.py
-    participant Feed as MarketDataFeed
-    participant Strat1 as Strategy A<br/>(MA)
-    participant Strat2 as Strategy B<br/>(Supertrend)
-    participant Strat3 as Strategy C<br/>(RSI2)
-    participant Risk as RiskManager
-    participant Exec as ExecutionEngine
-    participant Metrics as Analytics/Metrics
+📊 Trade logs, equity curves, and per-strategy performance metrics
 
-    Main->>Feed: request next Bar
-    Feed-->>Main: return Bar
+🧾 CSV export for all major outputs
 
-    loop per Strategy
-        Main->>Strat1: on_bar(Bar)
-        Strat1-->>Main: Signal[] (0..N)
+⚙️ Built only with Python + pandas — no trading frameworks
 
-        Main->>Strat2: on_bar(Bar)
-        Strat2-->>Main: Signal[] (0..N)
+📦 Included Trading Strategies
+Strategy	Description	Bias
+Moving Average Crossover	Trend-following	Long / Exit
+Supertrend	Directional trailing stop strategy	Long / Exit
+RSI-2 Mean Reversion	Short-term momentum reversion	Long / Exit
 
-        Main->>Strat3: on_bar(Bar)
-        Strat3-->>Main: Signal[] (0..N)
-    end
+Each strategy:
 
-    Main->>Risk: check Signals
-    Risk-->>Main: allowed Signals
+✔ Implements a common interface
+✔ Consumes the same live data feed
+✔ Emits structured Signal objects
+✔ Operates independently
 
-    Main->>Exec: execute(Bar, Signals)
-    Exec-->>Exec: update positions & trades
+📁 Outputs Generated
 
-    Note right of Exec: Realised & Unrealised PnL updated
+The backtest produces:
 
-    Main->>Feed: request next Bar
-    Feed-->>Main: return Bar
+📄 trades_<strategy>.csv — all executed trades
+📈 equity_<strategy>.csv — cumulative PnL curve
+📊 metrics_<strategy>.csv — Sharpe, drawdown, win-rate, etc.
+📑 strategy_metrics.csv — consolidated results
 
-    opt End of Backtest
-        Main->>Metrics: compute(trades)
-        Metrics-->>Main: per-strategy analytics
-        Main-->>Main: save CSV outputs
-    end
-graph TD
+These files make the system suitable for research workflows, presentation, and audit review.
 
-    subgraph Data Layer
-        Feed[MarketDataFeed\n(OHLC Loader + Replay)]
-    end
+🏗️ Design Philosophy
 
-    subgraph Strategy Engine
-        MA[MovingAverageStrategy]
-        ST[SupertrendStrategy]
-        RSI[RSI2Strategy]
-        Base[Strategy Base Class]
-    end
+ProjectQuant follows separation of concerns:
 
-    subgraph Execution Layer
-        Risk[RiskManager]
-        Exec[ExecutionEngine\n(Market Order Simulator)]
-    end
+✔ Data layer
+✔ Strategy layer
+✔ Execution layer
+✔ Risk layer
+✔ Analytics layer
 
-    subgraph Analytics Layer
-        Metrics[Metrics Engine\n(Sharpe • DD • Win-rate)]
-        Reports[CSV Outputs\nTrades • Metrics • Equity]
-    end
+This simplifies debugging, enables future strategy extensions, and demonstrates sound software engineering practices expected in quantitative finance systems.
 
-    Main[main.py\n(Orchestrator)]
 
-    Feed --> Main
+✅ proofread the entire README for submission polish
 
-    Base --- MA
-    Base --- ST
-    Base --- RSI
-
-    Main --> MA
-    Main --> ST
-    Main --> RSI
-
-    MA --> Main
-    ST --> Main
-    RSI --> Main
-
-    Main --> Risk
-    Risk --> Exec
-
-    Exec --> Metrics
-    Metrics --> Reports
-
-    main_py --> RiskManager
-
+Just tell me 👍
