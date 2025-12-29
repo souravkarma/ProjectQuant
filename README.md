@@ -68,6 +68,4 @@ ProjectQuant follows separation of concerns:
 This simplifies debugging, enables future strategy extensions, and demonstrates sound software engineering practices expected in quantitative finance systems.
 
 
-✅ proofread the entire README for submission polish
 
-Just tell me 👍
