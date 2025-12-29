@@ -1,0 +1,11 @@
+data_path: "C:/Users/soura/cash_backtest/Cash_data"
+symbols:
+  - cash_ACC
+  #- cash_AMBUJACEM
+  #- cash_PFIZER
+
+start_equity: 100000
+slippage: 0.0005
+max_qty: 500
+daily_loss_limit_pct: -0.05
+risk_free_rate: 0.05
